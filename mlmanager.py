@@ -143,7 +143,7 @@ class Download():
     # Open the connection
     try:
       s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      s.connect(("localhost", 4001))
+      s.connect(("localhost", 4000))
     except Exception, e:
       raise RuntimeError("Unable to connect to mldonkey daemon: %s" % e)
     
