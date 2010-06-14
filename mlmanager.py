@@ -10,13 +10,13 @@
 
 __author__ = "Leonardo Robol <leo@robol.it>"
 
-import os, sys, socket, shutil
+import os, sys, socket, shutil, subprocess, time
 
 # Set file extensions to match. 
 video_extensions = ['avi', 'mpeg', 'mpg', 'mkv', 'm2v', 'divx', 'xvid']
 audio_extensions = ['mp3,' 'ogg', 'wav', 'flac', 'aac' ]
 text_extensions  = ['pdf', 'doc', 'odt', 'ods', 'odp', 'ppt', 'rtf',
-		    'pps', 'xls' ]
+		    'pps', 'xls' , 'txt' ]
 cdimage_extensions = [ 'iso', 'nrg' ]
 
 class FileType():
@@ -177,29 +177,37 @@ class Download():
     # Update _dest_path
     self._dest_path = destination_folder + filename
     
-  def rsync_to(self, remote_destination):
+  def rsync(self, remote_destination):
     """Rsync the file to the remote destination. There must be an ssh key
     in the remote server otherwise nothing will happen. The script will
     automatically try a bunch of time to retransfer the file if 
     the connection fail."""
-    if not self._committed ():
+    if not self._committed:
       self.commit ()
       
     # Initialize internal counter of the times we have tried to move the file
     self._rsync_counter = 0
-    s = subprocess.Popen("rsync --partial -az --compress-level=9 %s %s" % (self._dest_path,
+    s = subprocess.Popen("rsync --partial -az --compress-level=9 \"%s\" \"%s\"" % (self._dest_path,
 									   remote_destination),
 			shell = True, stderr = subprocess.PIPE, stdout = subprocess.PIPE)
     ret_code = s.wait ()
+    
+    # If we fail call this funtion recursively to retry...wait for 5 seconds and the go (it could
+    # be only a network problem)
     if ret_code != 0:
       self._rsync_counter += 1
       if self._rsync_counter < 5:
-	self.rsync_to(remote_destination)
+	time.sleep (5)
+	self.rsync(remote_destination)
       else:
 	self.notify_error("Rsync transfer of file %s failed more than 5 times, aborting" % self._filename)
 	
   def notify_error(self, message):
     """Notify error via email"""
+    pass
+  
+  def notify_email(self, recipients, message):
+    """Notify something to some people via email"""
     pass
     
   def get_type(self):
