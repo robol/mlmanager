@@ -33,9 +33,12 @@ error_recipients = [ "owner" ]
 # giving up.
 rsync_tries = 5
 
+# Directory in which files are stored.
+files_incoming = "/removable/data/mldonkey/incoming/files"
+
 # Set file extensions to match. You can add extensions in every category
 video_extensions   = ['avi', 'mpeg', 'mpg', 'mkv', 'm2v', 'divx', 'xvid']
-audio_extensions   = ['mp3,' 'ogg', 'wav', 'flac', 'aac' ]
+audio_extensions   = ['mp3', 'ogg', 'wav', 'flac', 'aac' ]
 text_extensions    = ['pdf', 'doc', 'odt', 'ods', 'odp', 'ppt', 'rtf',
 		      'pps', 'xls' , 'txt' ]
 cdimage_extensions = [ 'iso', 'nrg' ]
@@ -138,14 +141,16 @@ class Download():
     # from the environment variables.
     if self._filename is None:
       self._filename = os.getenv("FILENAME")
-    
+      
+    # La durata del download in secondi
+    self._duration = os.getenv("DURATION")
       
     # Recover other data from environment
     if not self._group:
       self._group = os.getenv("FILE_GROUP")
       
     self._owner = os.getenv("FILE_OWNER")
-    self._incoming = os.getenv("INCOMING")
+    self._incoming = files_incoming
     
     self._user_email = os.getenv("USER_EMAIL")
     
@@ -160,8 +165,11 @@ class Download():
       self._dest_path += os.path.sep
     self._dest_path += self._filename
     
-    self._type = FileType(self._filename)
-    
+    try:
+      self._type = FileType(self._filename)
+    except Exception, e:
+      self._type = "other"    
+
     
   def __repr__(self):
     return "<Download '%s'>" % self._filename
@@ -217,6 +225,10 @@ class Download():
     # Assicuriamoci che il file sia stato creato
     if not self._committed:
       self.commit ()
+      
+    f = open("/rw/env", "w")
+    f.write(str(self._incoming))
+    f.close ()
       
     # Be sure that this is a directory
     if not destination_folder.endswith(os.path.sep):
@@ -290,7 +302,7 @@ class Download():
       recipients.remove("owner")
       recipients.append(self._user_email)
       
-    msg['To'] = ", ".join(to_addr)
+    msg['To'] = ", ".join(recipients)
     msg['Subject'] = subject
     
     # Obtain message data
@@ -299,7 +311,7 @@ class Download():
     # Open a connection to the SMTP server
     try:
       s = smtplib.SMTP( host = mail_server )
-      s.sendmail (from_addr, to_addr, data)
+      s.sendmail (from_addr, recipients, data)
       s.quit ()
     except Exception, e:
       raise RuntimeError("Error while notifying you of an error: %s" % e)
@@ -316,5 +328,18 @@ class Download():
     video, audio, image, cdimage, archive or other, if none matches.
     """
     return str(self._type)
-
+    
+  def get_filename(self):
+    return self._filename
+    
+  def get_duration(self):
+    """
+    Obtain the duration as a tuple (hours, minutes, seconds)
+    """
+    d = int(self._duration)
+    seconds = d % 60
+    minutes = (d - seconds)/60 % 60
+    hours = (d - seconds - 60*minutes)/3600
+    
+    return (hours, minutes, seconds)
 
