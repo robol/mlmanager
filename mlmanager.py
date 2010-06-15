@@ -356,7 +356,12 @@ class Download():
     return str(self._type)
     
   def get_filename(self):
+    """Return filename"""
     return self._filename
+    
+  def get_group(self):
+    """Return group"""
+    return self._group
     
   def get_duration(self):
     """
