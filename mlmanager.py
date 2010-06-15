@@ -286,11 +286,15 @@ class Download():
     if not self._committed:
       self.commit ()
       
+    errors = ""
+      
     # Initialize internal counter of the times we have tried to move the file
     self._rsync_counter = 0
     s = subprocess.Popen("rsync --partial -az --compress-level=9 \"%s\" \"%s\"" % (self._dest_path,
 										   remote_destination),
 			 shell = True, stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+			 
+    errors += "\n" + s.communicate ()[1]
     ret_code = s.wait ()
     
     # If we fail call this funtion recursively to retry...wait for 60 seconds and then go (it could
@@ -301,7 +305,7 @@ class Download():
 	time.sleep (60)
 	self.rsync(remote_destination)
       else:
-	self._notify_error("Rsync transfer of file %s failed more than 5 times, aborting" % self._filename)
+	self._notify_error("Rsync transfer of file %s failed more than 5 times, aborting\n\n%s" % (self._filename, errors))
 	
   def _notify_error(self, message):
     """Notify error via email"""

@@ -14,6 +14,8 @@ import mlmanager
 # Adjust some internal variables, for example add a text estension;
 # You can also append to
 # video_extensions, audio_extensions, cdimage_extensions and archive_extensions
+# You can view the default values opening a python shell, improting mlmanager
+# and printing mlmanager.****_extensions
 mlmanager.text_extensions.append ("djvu")
 
 # Change mail addr of the daemon and domain of the server.
@@ -56,12 +58,12 @@ mail_text += "Duration of the download: %s.\n\n" % duration
 recipients = [ "user1@provider.com", "user2@anotherprovider.org" , "owner" ]
 
 # Move download to the right place
-if download.get_type() == "video":
+if download.get_type() is "video":
     download.move("/shared/Films")
     mail_text += "The file has been recognized as a film so it has been copied\n"
     mail_text += "in /shared/Films.\n"
 
-elif download.get_type() == "audio":
+elif download.get_type() is "audio":
     download.move("/shared/Musica")
     mail_text += "The file has been recognized as music so it has been copied\n"
     mail_text += "in /shared/Music.\n"
@@ -83,7 +85,7 @@ if download.is_in_group("remote"):
     recipients.remove("user2@anotherprovider.org")
 
 # Script signature
-mail_text += "\nmldonkey <mldonkey@robol.it>\n"
+mail_text += "\n--\nmldonkey <mldonkey@robol.it>\n"
 
 # Notify users by mail
 download.notify_email(recipients, 
