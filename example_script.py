@@ -27,6 +27,11 @@ mlmanager.mail_server = "localhost"
 # Users that should be notified on error, default is "owner"
 mlmanager.error_recipients = [ "owner", "admin@example.org" ]
 
+# Incoming directory for your mldonkey downloads. Directory are not handled now
+# This is the default so it really doesn't matter that you set it if it is
+# /var/lib/mldonkey/incoming/files
+mlmanager.files_incoming = "/var/lib/mldonkey/incoming/files"
+
 # Our mldonkey supports auto commit so we don't need username and password, but we
 # could also use download = mlmanager.Download(username = "user", password = "password")
 download = mlmanager.Download()

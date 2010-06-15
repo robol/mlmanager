@@ -255,6 +255,10 @@ class Download():
     if not destination_folder.endswith(os.path.sep):
       destination_folder += os.path.sep
       
+    if not os.path.exists(destination_folder):
+      self._notify_error("Destination directory %s does not exists" % destination_folder)
+      return
+    
     shutil.move (self._dest_path, destination_folder + filename)
     
     # Update _dest_path
@@ -270,6 +274,7 @@ class Download():
     
     if not self._committed:
       self.commit()
+    
     shutil.copy(self._dest_path, destination)
     
     
