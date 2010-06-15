@@ -1,12 +1,17 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This is mlmanager, a python script thought to handle
-# downloaded file from mldonkey. 
+# mlmanager is a python package that aims to "organize"
+# your mldonkey downloads. 
 #
-# It is released under the GNU Public License 3
+# You can easily write a script that take care of moving
+# a file in the right place and to write emails to the right
+# people that need to know about the download. 
 #
-# Leonardo Robol <leo@robol.it>
+#
+# It is released under the GNU General Public License Version 3
+#
+# Author: Leonardo Robol <leo@robol.it>
+
 
 #
 # START OF CONFIGURATION SECTION
@@ -120,19 +125,29 @@ class Download():
   This class represent a file or a folder downloaded via mldonkey.
   You should create an instance of this calling
   
-    d = Download("path/to/file")
+    d = Download()
+  
+  or, if you want
+  
+    d = Download(username = "admin", password = "mysecretpassword")
     
-  and you should be able to perform your processing with some useful
-  methods
+  This allow the script to connect to the mldonkey daemon and ensure
+  that the file have been committed. It is not needed for mldonkey
+  >= 2.7, but IT IS REQUIRED if you run an earlier mldonkey!
   """
   
-  def __init__(self, username, password, filename = None, group = None):
+  def __init__(self, username = None, password = None, filename = None, group = None):
     """Perform some heuristic to determine the filetype,
     filename, groups and similar"""
     
     # Set username and password
     self._username = username
     self._password = password
+    
+    # If you do not provide username or password we can't
+    # execute any command
+    if not self._username or not self._password:
+      self._authentication_available = False
     
     self._filename = filename
     self._group = group
@@ -155,8 +170,11 @@ class Download():
     self._user_email = os.getenv("USER_EMAIL")
     
     # The file is not yet committed. You will need to commit it
-    # before trying to move it.
+    # before trying to move it. If we do not have authentication
+    # assume that auto commit is enabled
     self._committed = False
+    if not self._authentication_available:
+      self._committed = True
     
     # Construct the path of the file; this will be the real
     # path after it will be committed!
@@ -175,6 +193,9 @@ class Download():
     return "<Download '%s'>" % self._filename
     
   def _authentication_command (self):
+    if not self._authentication_available:
+      self._notify_error("Authentication data is not available, I can't authenticate to mldonkey")
+      return None
     return "auth %s %s" % (self._username, self._password)
     
   def commit(self):
@@ -182,7 +203,11 @@ class Download():
     in its final position. This should be the first 
     thing you do"""
     
-    commands = [ self._authentication_command (), 
+    authentication = self._authentication_command ()
+    if not authentication:
+      return None
+    
+    commands = [ authentication, 
 		 "commit" ]
     self.send_command (commands)
     self._committed = True
@@ -203,7 +228,7 @@ class Download():
       s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       s.connect(("localhost", 4000))
     except Exception, e:
-      self.notify_error("Unable to connect to mldonkey daemon: %s" % e)
+      self._notify_error("Unable to connect to mldonkey daemon: %s" % e)
     
     # Costruct the command line
     command_line = "\n".join(command_list)
@@ -275,9 +300,9 @@ class Download():
 	time.sleep (60)
 	self.rsync(remote_destination)
       else:
-	self.notify_error("Rsync transfer of file %s failed more than 5 times, aborting" % self._filename)
+	self._notify_error("Rsync transfer of file %s failed more than 5 times, aborting" % self._filename)
 	
-  def notify_error(self, message):
+  def _notify_error(self, message):
     """Notify error via email"""
     self._send_mail (error_recipients, "[mlmanager] An error occurred",
 		     message)
