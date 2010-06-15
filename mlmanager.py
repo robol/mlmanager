@@ -39,7 +39,7 @@ error_recipients = [ "owner" ]
 rsync_tries = 5
 
 # Directory in which files are stored.
-files_incoming = "/removable/data/mldonkey/incoming/files"
+files_incoming = "/var/lib/mldonkey/incoming/files"
 
 # Set file extensions to match. You can add extensions in every category
 video_extensions   = ['avi', 'mpeg', 'mpg', 'mkv', 'm2v', 'divx', 'xvid']
@@ -250,10 +250,6 @@ class Download():
     # Assicuriamoci che il file sia stato creato
     if not self._committed:
       self.commit ()
-      
-    f = open("/rw/env", "w")
-    f.write(str(self._incoming))
-    f.close ()
       
     # Be sure that this is a directory
     if not destination_folder.endswith(os.path.sep):
