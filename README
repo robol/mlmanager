@@ -1,0 +1,59 @@
+mlmanager is a python module that can be used to manage downloads
+of mldonkey.
+
+Once installed, you can easily write script similar to "example_script.py", 
+save them in a know location, make them executable and then say mldonkey
+to execute them after the download completion.
+
+To configure mldonkey you need to log in in the console, i.e.
+
+  $ telnet localhost 4000
+  $ auth admin password
+
+and then to configure the variable file_completed_cmd properly and quit
+
+  $ set file_completed_cmd "/path/to/the/script"
+  $ quit
+
+Now mldonkey will call you script after every download. The documentation
+of the module can be obtained via a python shell with
+
+  $ python
+  >>> import mlmanager
+  >>> help(mlmanager)
+
+This is the best way to know what the script can and can't do. But you can also
+read the rest of this file. There could be options not listed here!
+
+1) Internal variables
+
+  There are some variables set in the mlmanager module that you should
+  change whene you import it. For example
+
+  - mlmanager.files_incoming [ default = '/var/lib/mldonkey/incoming/files' ]
+      
+      This is the directory where downloaded files are stored. You must
+      adjust to be correct, otherwise mlmanager won't find your downloaded
+      files.
+
+  - mlmanager.domain 
+
+      This is the domain the server is in. It's not very important, but you should
+      set it to a correct value
+
+  - mlmanager.from_addr
+
+      This is the addr the mail from the script will come. It's not supposed to be 
+      a real email address (even if it can be), but it should be a possible mail_from
+      value for your mailserver, otherwise email will not be sent
+
+  - mlmanager.mail_server [ default = 'localhost' ]
+
+      The mail server the script will connect to. It should allow the script to send
+      mail without authentication (i.e. it should be the local mail server, or a mail
+      server serving the local net)
+
+2) Write your script
+
+  Look at example_script.py for an overview of the possible test that you can do on
+  the downloaded file. 

@@ -1,0 +1,9 @@
+Install mlmanager module is as simple as
+
+  $ sudo python setup.py install
+
+or 
+
+  $ su
+  $ python setup.py install
+
