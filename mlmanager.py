@@ -38,8 +38,11 @@ error_recipients = [ "owner" ]
 # giving up.
 rsync_tries = 5
 
-# Directory in which files are stored.
-files_incoming = "/var/lib/mldonkey/incoming/files"
+# Directory in which files are stored. It should contain two directories:
+# 1) files: where simple files are stored, and
+# 2) directories: where directories downloaded via bittorrent (or similar)
+#    are stored. 
+incoming = "/var/lib/mldonkey/incoming"
 
 # Set file extensions to match. You can add extensions in every category
 video_extensions   = ['avi', 'mpeg', 'mpg', 'mkv', 'm2v', 'divx', 'xvid']
@@ -165,7 +168,7 @@ class Download():
       self._group = os.getenv("FILE_GROUP")
       
     self._owner = os.getenv("FILE_OWNER")
-    self._incoming = files_incoming
+    self._incoming = incoming
     
     self._user_email = os.getenv("USER_EMAIL")
     
@@ -175,13 +178,23 @@ class Download():
     self._committed = False
     if not self._authentication_available:
       self._committed = True
+    else:
+      self.commit ()
     
     # Construct the path of the file; this will be the real
     # path after it will be committed!
     self._dest_path = self._incoming
     if not self._dest_path.endswith(os.path.sep):
       self._dest_path += os.path.sep
-    self._dest_path += self._filename
+    if os.path.exists(self._dest_path + os.path.join("files", self._filename)):
+      self._dest_path += os.path.join("files", self._filename)
+    else:
+      self._dest_path += os.path.join("directories", self._filename)
+
+    # If we get called with a non-existant file as argument that
+    # is really a problem. 
+    if not os.path.exists(self._dest_path):
+      self._notify_error ("Selected file does not exists: %s" % self._dest_path)
     
     try:
       self._type = FileType(self._filename)
