@@ -322,7 +322,7 @@ class Download():
 	
   def _notify_error(self, message):
     """Notify error via email"""
-    self._send_mail (error_recipients, "[mlmanager] An error occurred",
+    self._send_email (error_recipients, "[mlmanager] An error occurred",
 		     message)
   
   def notify_email(self, recipients, subject, message):
