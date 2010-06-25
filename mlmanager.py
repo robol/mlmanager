@@ -49,7 +49,7 @@ archive_extensions = [ 'rar', 'zip', '7z', 'tar.gz', 'tar.bz2', 'lzo' ]
 
 __author__ = "Leonardo Robol <leo@robol.it>"
 
-import os, sys, socket, shutil, subprocess, time, smtplib
+import os, sys, socket, shutil, subprocess, time, smtplib, stat
 from email.mime.text import MIMEText
 
 class FileType():
@@ -283,6 +283,19 @@ class Download():
     
     shutil.copy(self._dest_path, destination)
     
+  def make_group_writable(self):
+  	"""
+  	Chmod the file so that group users can move it. This can be useful
+  	because often mldonkey user is not the user that needs to organize
+  	the downloads
+  	"""
+  	os.chmod(self._dest_file, stat.S_IRGRP)
+  	os.chmod(self._dest_file, stat.S_IWGRP)
+  	
+  def make_public(self):
+  	"""Make the file public, i.e. let anyone modify it."""
+  	os.chmod(self._dest_file, stat.S_IROTH)
+  	os.chmod(self._dest_file, stat.S_IWOTH)
     
   def rsync(self, remote_destination):
     """Rsync the file to the remote destination. There must be an ssh key
