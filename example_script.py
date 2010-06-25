@@ -60,12 +60,12 @@ mail_text += "Duration of the download: %s.\n\n" % duration
 recipients = [ "user1@provider.com", "user2@anotherprovider.org" , "owner" ]
 
 # Move download to the right place
-if download.get_type() is "video":
+if download.get_type() == "video":
     download.move("/shared/Films")
     mail_text += "The file has been recognized as a film so it has been copied\n"
     mail_text += "in /shared/Films.\n"
 
-elif download.get_type() is "audio":
+elif download.get_type() == "audio":
     download.move("/shared/Musica")
     mail_text += "The file has been recognized as music so it has been copied\n"
     mail_text += "in /shared/Music.\n"
