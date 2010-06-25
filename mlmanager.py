@@ -382,9 +382,9 @@ class Download():
     """Return group"""
     return self._group
 
-  def get_username(self):
+  def get_user(self):
     """Return duration"""
-    return self._username
+    return self._owner
     
   def get_duration(self):
     """
