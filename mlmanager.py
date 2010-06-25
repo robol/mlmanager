@@ -169,8 +169,12 @@ class Download():
       
     self._owner = os.getenv("FILE_OWNER")
     self._incoming = incoming
-    
+
+    # This could be none, and if it's empty
+    # we should set it to None
     self._user_email = os.getenv("USER_EMAIL")
+    if self._user_email is "":
+      self._user_email = None
     
     # The file is not yet committed. You will need to commit it
     # before trying to move it. If we do not have authentication
@@ -340,10 +344,12 @@ class Download():
     if isinstance(recipients, str):
       recipients = [ recipients ]
       
-    # Add user email if requested
+    # Add user email if requested, and if present in the
+    # profile of the user
     if "owner" in recipients:
       recipients.remove("owner")
-      recipients.append(self._user_email)
+      if self._user_email is not None:
+        recipients.append(self._user_email)
       
     msg['To'] = ", ".join(recipients)
     msg['Subject'] = subject
@@ -379,6 +385,10 @@ class Download():
   def get_group(self):
     """Return group"""
     return self._group
+
+  def get_username(self):
+    """Return duration"""
+    return self._username
     
   def get_duration(self):
     """
