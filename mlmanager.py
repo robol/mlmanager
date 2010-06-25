@@ -185,6 +185,12 @@ class Download():
     self._dest_path = os.path.join(os.getenv("HOME"), self._incoming)
     self._dest_path = os.path.join(self._dest_path, self._filename)
 
+    # It seems that mldonkey can confuse about directory and files.
+    if not os.path.exists(self._dest_path) and "directories" in self._dest_path:
+      self._dest_path = self._dest_path.replace("directories", "files")
+    if not os.path.exists(self._dest_path) and "files" in self._dest_path:
+      self._dest_path = self._dest_path.replace("files", "directories")
+
     # If we get called with a non-existant file as argument that
     # is really a problem. 
     if not os.path.exists(self._dest_path):
