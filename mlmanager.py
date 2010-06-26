@@ -289,13 +289,13 @@ class Download():
   	because often mldonkey user is not the user that needs to organize
   	the downloads
   	"""
-  	os.chmod(self._dest_file, stat.S_IRGRP)
-  	os.chmod(self._dest_file, stat.S_IWGRP)
+  	os.chmod(self._dest_path, stat.S_IRGRP)
+  	os.chmod(self._dest_path, stat.S_IWGRP)
   	
   def make_public(self):
   	"""Make the file public, i.e. let anyone modify it."""
-  	os.chmod(self._dest_file, stat.S_IROTH)
-  	os.chmod(self._dest_file, stat.S_IWOTH)
+  	os.chmod(self._dest_path, stat.S_IROTH)
+  	os.chmod(self._dest_path, stat.S_IWOTH)
     
   def rsync(self, remote_destination):
     """Rsync the file to the remote destination. There must be an ssh key
