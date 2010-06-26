@@ -30,12 +30,6 @@ read the rest of this file. There could be options not listed here!
   There are some variables set in the mlmanager module that you should
   change whene you import it. For example
 
-  - mlmanager.incoming [ default = '/var/lib/mldonkey/incoming' ]
-      
-      This is the directory where downloaded files are stored. You must
-      adjust to be correct, otherwise mlmanager won't find your downloaded
-      files.
-
   - mlmanager.domain 
 
       This is the domain the server is in. It's not very important, but you should
