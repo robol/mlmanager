@@ -321,7 +321,7 @@ class Download():
       
     # Initialize internal counter of the times we have tried to move the file
     self._rsync_counter = 0
-    s = subprocess.Popen("rsync --partial -az --compress-level=9 \"%s\" \"%s\"" % (self._dest_path,
+    s = subprocess.Popen("rsync --partial -zrLptgoD --compress-level=9 \"%s\" \"%s\"" % (self._dest_path,
 										   remote_destination),
 			 shell = True, stderr = subprocess.PIPE, stdout = subprocess.PIPE)
 			 
