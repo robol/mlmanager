@@ -163,6 +163,9 @@ class Download():
     self._user_email = os.getenv("USER_EMAIL")
     if self._user_email is "":
       self._user_email = None
+
+    # Get network of the file
+    self._network = os.getenv("NETWORK")
     
     # The file is not yet committed. You will need to commit it
     # before trying to move it. If we do not have authentication
@@ -265,7 +268,11 @@ class Download():
       self._notify_error("Destination directory %s does not exists" % destination_folder)
       return
     
-    shutil.move (self._dest_path, destination_folder + filename)
+    # Do not move torrents so they not stop seeding
+    if self._network != "BitTorrent":
+      shutil.move (self._dest_path, destination_folder + filename)
+    else:
+      os.link (self._dest_path, destination_folder + filename)
     
     # Update _dest_path
     self._dest_path = destination_folder + filename
@@ -324,7 +331,7 @@ class Download():
 	time.sleep (60)
 	self.rsync(remote_destination)
       else:
-	self._notify_error("Rsync transfer of file %s failed more than 5 times, aborting\n\n%s" % (self._filename, errors))
+	self._notify_error("Rsync transfer of file %s failed more than %s times, aborting\n\n%s" % (self._filename, rsync_tries, errors))
 	
   def _notify_error(self, message):
     """Notify error via email"""
