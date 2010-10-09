@@ -272,7 +272,12 @@ class Download():
     if self._network != "BitTorrent":
       shutil.move (self._dest_path, destination_folder + filename)
     else:
-      os.link (self._dest_path, destination_folder + filename)
+      # Try hard link first (that will work only for files
+      # and only on the same filesystem, and symlink after
+      try:
+        os.link (self._dest_path, destination_folder + filename)
+      except:
+        os.symlink (self._dest_path, destination_folder + filename)
     
     # Update _dest_path
     self._dest_path = destination_folder + filename
