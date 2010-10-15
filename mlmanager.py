@@ -268,16 +268,13 @@ class Download():
       self._notify_error("Destination directory %s does not exists" % destination_folder)
       return
     
-    # Do not move torrents so they not stop seeding
-    if self._network != "BitTorrent":
-      shutil.move (self._dest_path, destination_folder + filename)
-    else:
-      # Try hard link first (that will work only for files
-      # and only on the same filesystem, and symlink after
-      try:
-        os.link (self._dest_path, destination_folder + filename)
-      except:
-        os.symlink (self._dest_path, destination_folder + filename)
+    # Move the downladed file
+    shutil.move (self._dest_path, destination_folder + filename)
+
+    # If the file was downloaded via Bittorrent try to symlink the file back
+    # in the incoming folder so mldonkey does not stop seeding
+    if self._network == "BitTorrent":
+      os.symlink (destination_folder + filename, self._dest_path)
     
     # Update _dest_path
     self._dest_path = destination_folder + filename
